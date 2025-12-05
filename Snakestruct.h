@@ -11,6 +11,7 @@ typedef struct {
     int length;
     int direction;
     int move_count;
+    int possible_directions[4];
 } Snake;
 
 
@@ -25,5 +26,8 @@ bool isSnakeSegmentInFront(Snake* snake, int snake_direction) ;
 
 void update_snake(Snake* snake) ;
 
+bool check_walls_and_snakes(Snake* MySnake, Snake* opponentSnake, int direction, int* walls, int nbWalls, int sizeX, int sizeY, int N) ;
 
-void getSnakePosition(Snake* snake, Position* position) ;
+int future_collision(Snake* MySnake, Snake* opponentSnake, int direction, int* walls, int nbWalls, int sizeX, int sizeY, int futureSteps);
+
+void make_move(Snake* MySnake, Snake* opponentSnake, int* walls, int nbWalls, int sizeX, int sizeY, int futureSteps);

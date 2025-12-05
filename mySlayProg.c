@@ -6,9 +6,9 @@
 #include "Snakestruct.h"
 
 int main() {
-	printf("Test\n");
+	printf("NEW GAME\n");
 	//Initialise la connexion avec le serveur
-	connectToServer("localhost", 1234, "PythonSlayer");
+	connectToServer("localhost", 1234, "PythonSlayer24");
 	
 	//Attendre que le serveur démarre le jeu
 	char gameType[40];
@@ -16,68 +16,41 @@ int main() {
 	int sizeX = 2;
 	int sizeY = 2; 
 	int nbWalls = 2;
-	waitForSnakeGame(strcpy(gameType,"TRAINING SUPER_PLAYER difficulty=2 "), strcpy(gameName,"Partie"), &sizeX, &sizeY,&nbWalls);
+	waitForSnakeGame(strcpy(gameType,"TRAINING SUPER_PLAYER difficulty=3"), strcpy(gameName,"Partie"), &sizeX, &sizeY,&nbWalls);
 	printf("%d  %d\n", sizeX, sizeY);
 	// Récupérer l'emplacement des murs de l'arène et le joueur commence
     int walls[4 * nbWalls];
     int player1 = getSnakeArena(walls);
     int player2 = (player1 + 1) % 2;
-    // Boucle de jeu
+
     Snake* MySnake = malloc(sizeof(Snake));
     Snake* opponentSnake = malloc(sizeof(Snake));
     initializeSnake(MySnake, player1, sizeX, sizeY);
     initializeSnake(opponentSnake, player2, sizeX, sizeY);
+    
+    // Boucle de jeu   
     while (1) {
     	//Démarrage du jeu
     	printf("Le jeu commence....\n");
     	//Affichage de l'état actuel de l'arène
     	printArena();
-        //printf("position x = %d\n", MySnake->segments->x);
-        //printf("position y = %d\n", MySnake->segments->y);
-        
-        Position* snakePosition = MySnake->segments;
-        getSnakePosition(MySnake, snakePosition);
 
         t_move move;
-        bool wallInFront;
-        int direction = MySnake->direction;
-        for(int i = 0; i < MySnake->length; i++) {
-            printf("position x = %d, position y = %d\n", opponentSnake->segments[i].x, opponentSnake->segments[i].y);
-        } 
-        if (MySnake->move_count == 0){
-            direction = ((MySnake->direction + 1) % 4);
-        }
-        for (int i = 0; i <= 3; i ++) {
-            if (isWallInFront(MySnake, walls, nbWalls, direction, sizeX, sizeY) == false){
-                if((isSnakeSegmentInFront(MySnake, direction) == false) && (isSnakeInFront(MySnake, opponentSnake, direction) == false) ){
-                    move = direction;
-                    wallInFront = false;
-                    printf("mur non detecter\n");
-                    break;
-                }
-            }
-            if ((isWallInFront(MySnake, walls, nbWalls, i, sizeX, sizeY) == false) && (i != ((MySnake->direction + 2) % 4))){
-                if ((isSnakeSegmentInFront(MySnake, i) == false) && (isSnakeInFront(MySnake, opponentSnake, i) == false)){
-                    move = i;
-                    wallInFront = false;
-                    printf("mur non detecter\n");
-                    break;
-                }
-            }
-            else {
-                wallInFront = true;
-            } 
-        }
-        if (!wallInFront) {
-            MySnake->direction = move;
-            //update_snake(MySnake);
-        }
-        else {
-            printf("Collision detected!\n");
-            break;
-        }   
+
+    
+
+        /////////////////NEW FUNCTION////////////////////////
+        int futureSteps = 212; // Nombre de coups à anticiper
+
+        // Appel de la fonction pour faire un mouvement
+        make_move(MySnake, opponentSnake, walls, nbWalls, sizeX, sizeY, futureSteps);
         move = MySnake->direction;
-        printf("direction = %d\n", move);
+
+        /* - comment: (string) comment to send to the server (max 100 char.)
+        */
+        
+        
+        
 
         if (player1 == 0){
             // Envoyer le mouvement au serveur
@@ -130,8 +103,11 @@ int main() {
         update_snake(opponentSnake);
         
     }
-    //printf("taille du Snake %d\n", MySnake->length);
+
 	free(MySnake);
+    free(opponentSnake);
+    /*char* comment = "GG WP";
+    sendComment(comment);*/
 	//Ferme la connection avec le serveur 
 	closeConnection();
 	return 0;
